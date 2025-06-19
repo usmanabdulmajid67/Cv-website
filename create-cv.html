@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create Your CV | Usman Abdulmajid</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col items-center p-6">
+
+  <header class="w-full max-w-4xl mb-6">
+    <h1 class="text-4xl font-bold text-center mb-4">Create Your CV</h1>
+    <p class="text-center text-gray-700 mb-8">Fill out the form and see a live preview below. Generate a downloadable CV PDF instantly.</p>
+  </header>
+
+  <main class="w-full max-w-6xl bg-white rounded shadow p-8 flex flex-col md:flex-row gap-10">
+
+    <!-- Form -->
+    <form id="cvForm" class="flex-grow space-y-6 md:max-w-md">
+      <section>
+        <label for="fullName" class="block font-semibold mb-1">Full Name *</label>
+        <input type="text" id="fullName" required
+               class="w-full border border-gray-300 rounded px-3 py-2" />
+      </section>
+
+      <section>
+        <label for="email" class="block font-semibold mb-1">Email *</label>
+        <input type="email" id="email" required
+               class="w-full border border-gray-300 rounded px-3 py-2" />
+      </section>
+
+      <section>
+        <label for="phone" class="block font-semibold mb-1">Phone *</label>
+        <input type="tel" id="phone" required
+               class="w-full border border-gray-300 rounded px-3 py-2" />
+      </section>
+
+      <section>
+        <label for="address" class="block font-semibold mb-1">Address</label>
+        <input type="text" id="address"
+               class="w-full border border-gray-300 rounded px-3 py-2" />
+      </section>
+
+      <section>
+        <label for="summary" class="block font-semibold mb-1">Summary / Objective</label>
+        <textarea id="summary" rows="3"
+                  class="w-full border border-gray-300 rounded px-3 py-2"></textarea>
+      </section>
+
+      <section>
+        <label for="education" class="block font-semibold mb-1">Education (one entry per line)</label>
+        <textarea id="education" rows="4" placeholder="Example: B.Sc. Computer Science, XYZ University, 2018-2022"
+                  class="w-full border border-gray-300 rounded px-3 py-2"></textarea>
+      </section>
+
+      <section>
+        <label for="experience" class="block font-semibold mb-1">Work Experience (one entry per line)</label>
+        <textarea id="experience" rows="5" placeholder="Example: Software Engineer, ABC Corp, 2022-Present&#10;- Developed project X"
+                  class="w-full border border-gray-300 rounded px-3 py-2"></textarea>
+      </section>
+
+      <section>
+        <label for="skills" class="block font-semibold mb-1">Skills (comma separated)</label>
+        <input type="text" id="skills" placeholder="e.g. Python, JavaScript, Data Analysis"
+               class="w-full border border-gray-300 rounded px-3 py-2" />
+      </section>
+
+      <button type="button" id="generateBtn"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded w-full mt-6">
+        Generate PDF
+      </button>
+    </form>
+
+    <!-- Live Preview -->
+    <section id="cvPreview" class="flex-grow max-w-3xl border border-gray-300 rounded p-8 bg-white text-gray-900 overflow-auto" style="min-height: 600px;">
+      <h1 class="text-3xl font-bold mb-2" id="previewFullName">Your Full Name</h1>
+      <p id="previewAddress" class="mb-1"></p>
+      <p class="mb-4" id="previewContact">Email | Phone</p>
+      <hr class="mb-6" />
+      <section id="previewSummarySection" class="mb-6 hidden">
+        <h2 class="text-xl font-semibold mb-1">Summary</h2>
+        <p id="previewSummary"></p>
+      </section>
+      <section id="previewEducationSection" class="mb-6 hidden">
+        <h2 class="text-xl font-semibold mb-1">Education</h2>
+        <ul id="previewEducation" class="list-disc list-inside"></ul>
+      </section>
+      <section id="previewExperienceSection" class="mb-6 hidden">
+        <h2 class="text-xl font-semibold mb-1">Work Experience</h2>
+        <ul id="previewExperience" class="list-disc list-inside"></ul>
+      </section>
+      <section id="previewSkillsSection" class="mb-6 hidden">
+        <h2 class="text-xl font-semibold mb-1">Skills</h2>
+        <p id="previewSkills"></p>
+      </section>
+    </section>
+
+  </main>
+
+<script>
+  const form = document.getElementById('cvForm');
+  const fullNameInput = document.getElementById('fullName');
+  const emailInput = document.getElementById('email');
+  const phoneInput = document.getElementById('phone');
+  const addressInput = document.getElementById('address');
+  const summaryInput = document.getElementById('summary');
+  const educationInput = document.getElementById('education');
+  const experienceInput = document.getElementById('experience');
+  const skillsInput = document.getElementById('skills');
+
+  const previewFullName = document.getElementById('previewFullName');
+  const previewAddress = document.getElementById('previewAddress');
+  const previewContact = document.getElementById('previewContact');
+  const previewSummarySection = document.getElementById('previewSummarySection');
+  const previewSummary = document.getElementById('previewSummary');
+  const previewEducationSection = document.getElementById('previewEducationSection');
+  const previewEducation = document.getElementById('previewEducation');
+  const previewExperienceSection = document.getElementById('previewExperienceSection');
+  const previewExperience = document.getElementById('previewExperience');
+  const previewSkillsSection = document.getElementById('previewSkillsSection');
+  const previewSkills = document.getElementById('previewSkills');
+
+  function updatePreview() {
+    previewFullName.textContent = fullNameInput.value || 'Your Full Name';
+    previewAddress.textContent = addressInput.value || '';
+    previewContact.textContent = `${emailInput.value || 'Email'} | ${phoneInput.value || 'Phone'}`;
+
+    if (summaryInput.value.trim()) {
+      previewSummarySection.classList.remove('hidden');
+      previewSummary.textContent = summaryInput.value.trim();
+    } else {
+      previewSummarySection.classList.add('hidden');
+      previewSummary.textContent = '';
+    }
+
+    if (educationInput.value.trim()) {
+      previewEducationSection.classList.remove('hidden');
+      previewEducation.innerHTML = educationInput.value
+        .split('\n')
+        .filter(line => line.trim())
+        .map(line => `<li>${line.trim()}</li>`)
+        .join('');
+    } else {
+      previewEducationSection.classList.add('hidden');
+      previewEducation.innerHTML = '';
+    }
+
+    if (experienceInput.value.trim()) {
+      previewExperienceSection.classList.remove('hidden');
+      previewExperience.innerHTML = experienceInput.value
+        .split('\n')
+        .filter(line => line.trim())
+        .map(line => `<li>${line.trim()}</li>`)
+        .join('');
+    } else {
+      previewExperienceSection.classList.add('hidden');
+      previewExperience.innerHTML = '';
+    }
+
+    if (skillsInput.value.trim()) {
+      previewSkillsSection.classList.remove('hidden');
+      previewSkills.textContent = skillsInput.value.trim();
+    } else {
+      previewSkillsSection.classList.add('hidden');
+      previewSkills.textContent = '';
+    }
+  }
+
+  // Update preview on input changes
+  form.addEventListener('input', updatePreview);
+
+  // Initial preview update on page load
+  updatePreview();
+
+  // Generate PDF
+  document.getElementById('generateBtn').addEventListener('click', () => {
+    if (!fullNameInput.value.trim() || !emailInput.value.trim() || !phoneInput.value.trim()) {
+      alert('Please fill in required fields: Full Name, Email, and Phone.');
+      return;
+    }
+
+    const opt = {
+      margin:       0.5,
+      filename:     `${fullNameInput.value.trim().replace(/\s+/g, '_')}_CV.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(document.getElementById('cvPreview')).save();
+  });
+</script>
+
+</body>
+</html>
